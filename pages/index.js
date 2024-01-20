@@ -22,7 +22,9 @@ function Home() {
       <Link href="/orders/orders" passHref>
         <Button variant="danger" type="button" size="lg">View Orders</Button>
       </Link>
-      <Button variant="warning" type="button" size="lg">Revenue</Button>
+      <Link href="/revenue" passHref>
+        <Button variant="warning" type="button" size="lg">Revenue</Button>
+      </Link>
     </div>
   );
 }
