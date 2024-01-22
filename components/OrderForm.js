@@ -6,12 +6,12 @@ import Form from 'react-bootstrap/Form';
 import { Button } from 'react-bootstrap';
 import { useAuth } from '../utils/context/authContext';
 import { createOrder, updateOrder } from '../utils/data/orderData';
-import getMenuItems from '../utils/data/itemData';
+import { getMenuItems } from '../utils/data/itemData';
 
 const initialState = {
   order_name: '',
   customer_name: '',
-  phone_number: '',
+  phone_number: 0,
   email: '',
   order_type: '',
   payment_type: '',
@@ -33,7 +33,7 @@ function OrderForm({ obj }) {
     getMenuItems()
       .then((items) => setMenuItems(items))
       .catch((error) => console.error('Error fetching menu items:', error));
-    // Set initial state in form fields based on obj prop
+    // Set initial state in form fields if EDITING
     if (obj && obj.id !== undefined) {
       setFormInput((prevState) => ({
         ...prevState,
@@ -103,13 +103,13 @@ function OrderForm({ obj }) {
       const updatedFormInput = { ...formInput, items: filteredItemIDs };
 
       if (obj.id) {
+        // Update existing order
         await updateOrder(updatedFormInput);
         router.push('/orders/orders');
       } else {
+        // Create new order
         const payload = { ...updatedFormInput, uid: user.uid };
-        const { name } = await createOrder(payload);
-        const patchPayload = { id: name };
-        await updateOrder(patchPayload);
+        await createOrder(payload);
         router.push('/orders/orders');
       }
     } catch (error) {
@@ -258,7 +258,7 @@ OrderForm.propTypes = {
     date: PropTypes.string,
     tip: PropTypes.string,
     order_total: PropTypes.string,
-    items: PropTypes.arrayOf(PropTypes.string),
+    items: PropTypes.arrayOf(PropTypes.number),
     id: PropTypes.number,
   }),
 };

@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-// import Link from 'next/link';
 import { Card } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
 import { getSingleOrder, deleteOrder } from '../../utils/data/orderData';
+import { getItemsByIds } from '../../utils/data/itemData';
 
 function SingleOrder() {
   const [singleOrder, setSingleOrder] = useState({});
+  const [itemNames, setItemNames] = useState([]);
   const router = useRouter();
 
   const { id } = router.query;
@@ -20,8 +21,20 @@ function SingleOrder() {
   };
 
   useEffect(() => {
-    getSingleOrder(id)
-      .then((data) => setSingleOrder(data));
+    const fetchData = async () => {
+      try {
+        const orderData = await getSingleOrder(id);
+        setSingleOrder(orderData);
+        // Fetch item names
+        const itemsData = await getItemsByIds(orderData.items);
+        const names = itemsData.map((item) => item.item_name);
+        setItemNames(names);
+      } catch (error) {
+        console.error('Error fetching order details:', error);
+      }
+    };
+
+    fetchData();
   }, [id]);
 
   return (
@@ -38,7 +51,7 @@ function SingleOrder() {
           <p>Order Type: {singleOrder.order_type}</p>
           <p>Payment Type: {singleOrder.payment_type}</p>
           <p>Date: {singleOrder.date}</p>
-          <p>Items: {singleOrder.items}</p>
+          <p>Items: {itemNames.join(', ')}</p>
           <p>Tip: {singleOrder.tip}</p>
           <p>Order Total: {singleOrder.order_total}</p>
         </Card>
@@ -47,12 +60,14 @@ function SingleOrder() {
             onClick={() => {
               router.push(`/orders/edit/${singleOrder.id}`);
             }}
-          >Update Info
+          >
+            Update Info
           </Button>
-          <Button className="delete-button" variant="danger" onClick={deleteThisOrder}>Delete Order</Button>
+          <Button className="delete-button" variant="danger" onClick={deleteThisOrder}>
+            Delete Order
+          </Button>
         </div>
       </div>
-
     </article>
   );
 }
