@@ -222,7 +222,7 @@ function OrderForm({ obj }) {
           {menuItems.map((menuItem, index) => (
             <tr key={menuItem.id}>
               <td>
-                <Form.Label htmlFor={`itemName-${index}`}>{menuItem.item_name}</Form.Label>
+                <Form.Label htmlFor={`quantityInput-${index}`}>{menuItem.item_name}</Form.Label>
               </td>
               <td>
                 <FloatingLabel controlId={`quantityInput-${index}`} label={`Quantity for ${menuItem.item_name}`}>
