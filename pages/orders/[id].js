@@ -43,7 +43,7 @@ function SingleOrder() {
         <div className="text-center mt-3">
           <h1>Order Details:</h1>
         </div>
-        <Card className="text-center mx-auto col-md-5">
+        <Card className="text-center mx-auto col-md-5" style={{ border: '2px solid black' }}>
           <Card.Header>Order Name: {singleOrder.order_name}</Card.Header>
           <p>Customer Name: {singleOrder.customer_name}</p>
           <p>Customer Email: {singleOrder.email}</p>
@@ -60,6 +60,7 @@ function SingleOrder() {
             onClick={() => {
               router.push(`/orders/edit/${singleOrder.id}`);
             }}
+            style={{ marginRight: '16px' }}
           >
             Update Info
           </Button>

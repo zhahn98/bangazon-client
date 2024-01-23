@@ -17,13 +17,13 @@ function Home() {
       <h1>Hello {user.fbUser.displayName}! </h1>
       <h4>Welcome to Bangazon, and get ready to take some orders!</h4>
       <Link href="/orders/new" passHref>
-        <Button variant="success" type="button" size="lg">New Order</Button>
+        <Button variant="success" type="button" size="lg" style={{ margin: '5px' }}>New Order</Button>
       </Link>
       <Link href="/orders/orders" passHref>
-        <Button variant="danger" type="button" size="lg">View Orders</Button>
+        <Button variant="danger" type="button" size="lg" style={{ margin: '5px' }}>View Orders</Button>
       </Link>
       <Link href="/revenue" passHref>
-        <Button variant="warning" type="button" size="lg">Revenue</Button>
+        <Button variant="warning" type="button" size="lg" style={{ margin: '5px' }}>Revenue</Button>
       </Link>
     </div>
   );

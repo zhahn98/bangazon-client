@@ -17,9 +17,16 @@ function Signin() {
         paddingBlock: '0 5rem',
       }}
     >
-      <h1>Hi there!</h1>
-      <p>Click the button below to login!</p>
-      <Button type="button" size="lg" className="copy-btn" onClick={signIn}>
+      <h1>Welcome to Bangazon!</h1>
+      <h5>Sign in to start taking orders.</h5>
+      <Button
+        type="button"
+        size="lg"
+        variant="warning"
+        className="copy-btn mx-auto"
+        onClick={signIn}
+        style={{ width: '200px' }}
+      >
         Sign In
       </Button>
     </div>

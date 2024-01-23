@@ -22,9 +22,16 @@ function OrderTotalSumPage() {
   }, []); // Run the effect only once on component mount
 
   return (
-    <div>
-      <h2 className="text-center">Revenue:</h2>
-      <table className="table">
+    <div style={{
+      height: '50vh',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+    }}
+    >
+      <h1 className="text-center">Revenue:</h1>
+      <table className="table" style={{ border: '2px solid black', width: '70%', maxWidth: '600px' }}>
         <thead>
           <tr>
             <th>Category</th>

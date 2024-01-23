@@ -7,7 +7,7 @@ import Link from 'next/link';
 export default function OrderCard({ orderObj }) {
   return (
     <>
-      <Card className="text-center mx-auto col-md-5 mb-2">
+      <Card className="text-center mx-auto col-md-5 mb-2" style={{ border: '2px solid black' }}>
         <Card.Header>{orderObj.order_name}</Card.Header>
         <Card.Body>
           <p>Customer Name: {orderObj.customer_name}</p>
