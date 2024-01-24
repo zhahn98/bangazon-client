@@ -69,6 +69,7 @@ function OrderForm({ obj }) {
         [name]: value,
       }));
     }
+    console.warn('updated form input:', formInput);
   };
 
   const handleSubmit = async (e) => {
