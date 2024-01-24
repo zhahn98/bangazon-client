@@ -12,4 +12,19 @@ const getMenuItems = () => new Promise((resolve, reject) => {
     .catch(reject);
 });
 
-export default getMenuItems;
+const getItemsByIds = async (itemIds) => {
+  try {
+    // Fetch all menu items
+    const allMenuItems = await getMenuItems();
+
+    // Filter menu items based on item IDs
+    const foundItems = itemIds.map((itemId) => allMenuItems.find((item) => item.id === itemId)).filter(Boolean);
+
+    return foundItems;
+  } catch (error) {
+    console.error('Error fetching items by ID:', error);
+    throw error;
+  }
+};
+
+export { getMenuItems, getItemsByIds };

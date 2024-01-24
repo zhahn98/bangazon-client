@@ -1,20 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-// import Link from 'next/link';
+import { Card } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
 import { getSingleOrder, deleteOrder } from '../../utils/data/orderData';
-// import ItemCard from '../../components/ItemCard';
+import { getItemsByIds } from '../../utils/data/itemData';
 
 function SingleOrder() {
   const [singleOrder, setSingleOrder] = useState({});
-  // const [items, setItems] = useState([]);
+  const [itemNames, setItemNames] = useState([]);
   const router = useRouter();
 
   const { id } = router.query;
-
-  // const getAllItems = () => {
-  //   getItemsOnSingleOrder(id).then((data) => setItems(data));
-  // };
 
   const deleteThisOrder = () => {
     if (window.confirm('Delete Order?')) {
@@ -25,56 +21,54 @@ function SingleOrder() {
   };
 
   useEffect(() => {
-    getSingleOrder(id)
-      .then((data) => setSingleOrder(data));
-  // .then(getAllItems);
+    const fetchData = async () => {
+      try {
+        const orderData = await getSingleOrder(id);
+        setSingleOrder(orderData);
+        // Fetch item names
+        const itemsData = await getItemsByIds(orderData.items);
+        const names = itemsData.map((item) => item.item_name);
+        setItemNames(names);
+      } catch (error) {
+        console.error('Error fetching order details:', error);
+      }
+    };
+
+    fetchData();
   }, [id]);
 
   return (
     <article className="single-event">
       <div>
-        <div>
-          {/* <Button
-            onClick={() => {
-              router.push(`/orderrevenues/edit/${singleOrder.id}`);
-            }}
-          >Close Order
-          </Button> */}
+        <div className="text-center mt-3">
+          <h1>Order Details:</h1>
         </div>
-        <h1>Order Details:</h1>
-        <p>Order Name: {singleOrder.order_name}</p>
-        <p>Customer Name: {singleOrder.customer_name}</p>
-        <p>Customer Email: {singleOrder.email}</p>
-        <p>Customer phone: {singleOrder.phone_number}</p>
-        <p>Order Type: {singleOrder.order_type}</p>
-        <p>Payment Type: {singleOrder.payment_type}</p>
-        <p>Date: {singleOrder.date}</p>
-        <p>Items: {singleOrder.items}</p>
-        <p>Tip: {singleOrder.tip}</p>
-        <p>Order Total: {singleOrder.order_total}</p>
-        <Button
-          onClick={() => {
-            router.push(`/orders/edit/${singleOrder.id}`);
-          }}
-        >Update Info
-        </Button>
-        <Button className="delete-button" variant="danger" onClick={deleteThisOrder}>Delete Order</Button>
+        <Card className="text-center mx-auto col-md-5" style={{ border: '2px solid black' }}>
+          <Card.Header>Order Name: {singleOrder.order_name}</Card.Header>
+          <p>Customer Name: {singleOrder.customer_name}</p>
+          <p>Customer Email: {singleOrder.email}</p>
+          <p>Customer phone: {singleOrder.phone_number}</p>
+          <p>Order Type: {singleOrder.order_type}</p>
+          <p>Payment Type: {singleOrder.payment_type}</p>
+          <p>Date: {singleOrder.date}</p>
+          <p>Items: {itemNames.join(', ')}</p>
+          <p>Tip: {singleOrder.tip}</p>
+          <p>Order Total: {singleOrder.order_total}</p>
+        </Card>
+        <div className="text-center mt-3">
+          <Button
+            onClick={() => {
+              router.push(`/orders/edit/${singleOrder.id}`);
+            }}
+            style={{ marginRight: '16px' }}
+          >
+            Update Info
+          </Button>
+          <Button className="delete-button" variant="danger" onClick={deleteThisOrder}>
+            Delete Order
+          </Button>
+        </div>
       </div>
-      {/* <div>
-        <h2>Order Items:</h2>
-        {items.map((item) => (
-          <section key={`item--${item.id}`} className="item">
-            <ItemCard
-              itemObj={item}
-              onUpdate={getAllItems}
-            />
-          </section>
-        ))}
-        Total: ${singleOrder.total_order}
-        <Link href={`/orders/add/${id}`} passHref>
-          <Button variant="primary" className="add-prods-btn">ADD ITEMS</Button>
-        </Link>
-      </div> */}
     </article>
   );
 }

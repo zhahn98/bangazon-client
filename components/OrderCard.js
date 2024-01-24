@@ -7,7 +7,7 @@ import Link from 'next/link';
 export default function OrderCard({ orderObj }) {
   return (
     <>
-      <Card className="text-center">
+      <Card className="text-center mx-auto col-md-5 mb-2" style={{ border: '2px solid black' }}>
         <Card.Header>{orderObj.order_name}</Card.Header>
         <Card.Body>
           <p>Customer Name: {orderObj.customer_name}</p>
@@ -17,9 +17,11 @@ export default function OrderCard({ orderObj }) {
               View Details
             </Button>
           </Link>
-          <Button variant="warning" className="m-2">
-            Edit Order
-          </Button>
+          <Link href={`/orders/edit/${orderObj.id}`} passHref>
+            <Button variant="warning" className="m-2">
+              Edit Order
+            </Button>
+          </Link>
         </Card.Body>
       </Card>
     </>

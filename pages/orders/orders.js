@@ -18,7 +18,7 @@ function OrdersPage() {
 
   return (
     <article className="events">
-      <h1>All orders</h1>
+      <h1 className="text-center">All orders:</h1>
       {orders.map((order) => (
         <section key={`event--${order.id}`} className="order">
           <OrderCard orderObj={order} />

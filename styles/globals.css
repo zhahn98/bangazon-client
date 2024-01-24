@@ -18,5 +18,8 @@ a {
 }
 
 body {
-  background-color: #e0d098;
+  background: linear-gradient(to bottom, #fbc2b3, #ee9048);
+  background-repeat: no-repeat;
+  background-size: 100% 100vh; 
+  background-attachment: fixed;
 }

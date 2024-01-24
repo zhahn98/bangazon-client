@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import PropTypes from 'prop-types';
 import FloatingLabel from 'react-bootstrap/FloatingLabel';
@@ -6,45 +6,115 @@ import Form from 'react-bootstrap/Form';
 import { Button } from 'react-bootstrap';
 import { useAuth } from '../utils/context/authContext';
 import { createOrder, updateOrder } from '../utils/data/orderData';
+import { getMenuItems } from '../utils/data/itemData';
 
 const initialState = {
   order_name: '',
   customer_name: '',
-  phone_number: '',
+  phone_number: 0,
   email: '',
   order_type: '',
   payment_type: '',
   date: '',
   tip: '',
   order_total: '',
-  items: '',
+  id: null,
+  items: [],
 };
 
 function OrderForm({ obj }) {
   const [formInput, setFormInput] = useState(initialState);
+  const [menuItems, setMenuItems] = useState([]);
   const router = useRouter();
   const { user } = useAuth();
 
-  const handleChange = (e) => {
+  useEffect(() => {
+    // Fetch menu items when the component mounts
+    getMenuItems()
+      .then((items) => setMenuItems(items))
+      .catch((error) => console.error('Error fetching menu items:', error));
+    // Set initial state in form fields if EDITING
+    if (obj && obj.id !== undefined) {
+      setFormInput((prevState) => ({
+        ...prevState,
+        ...obj,
+        items: obj.items.map((item) => item.item_name),
+      }));
+    }
+  }, [obj]);
+
+  const handleChange = (e, index) => {
     const { name, value } = e.target;
-    setFormInput((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
+
+    if (name === 'quantity') {
+      // Update the quantity for the specified menu item
+      const updatedItems = [...formInput.items];
+      const existingItem = updatedItems[index];
+
+      if (existingItem) {
+        updatedItems[index] = { ...existingItem, quantity: value };
+      } else {
+        // If the item doesn't exist in the array, create a new one
+        updatedItems[index] = { name: menuItems[index].item_name, quantity: value };
+      }
+
+      setFormInput((prevState) => ({
+        ...prevState,
+        items: updatedItems,
+      }));
+    } else {
+      // Update other form fields
+      setFormInput((prevState) => ({
+        ...prevState,
+        [name]: value,
+      }));
+    }
+    console.warn('updated form input:', formInput);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (obj.id) {
-      updateOrder(formInput).then(() => router.push('/orders/orders'));
-    } else {
-      const payload = { ...formInput, uid: user.uid };
-      createOrder(payload).then(({ name }) => {
-        const patchPayload = { id: name };
-        updateOrder(patchPayload).then(() => {
-          router.push('/orders/orders');
-        });
+
+    try {
+      const fetchedMenuItems = await getMenuItems();
+
+      if (fetchedMenuItems.length === 0) {
+        console.error('Error: No menu items fetched.');
+        return;
+      }
+
+      const itemIDs = formInput.items.map((menuItem) => {
+        if (!menuItem || !menuItem.name) {
+          return null;
+        }
+
+        const foundItem = fetchedMenuItems.find((item) => item.item_name === menuItem.name);
+
+        if (!foundItem) {
+          console.error(`Error: Menu item not found for ${menuItem.name}`);
+          return null;
+        }
+
+        return foundItem.id;
       });
+
+      // Filter out any null values (menu items not found or undefined name)
+      const filteredItemIDs = itemIDs.filter((item) => item !== null);
+
+      const updatedFormInput = { ...formInput, items: filteredItemIDs };
+
+      if (obj.id) {
+        // Update existing order
+        await updateOrder(updatedFormInput);
+        router.push('/orders/orders');
+      } else {
+        // Create new order
+        const payload = { ...updatedFormInput, uid: user.uid };
+        await createOrder(payload);
+        router.push('/orders/orders');
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error);
     }
   };
 
@@ -141,6 +211,37 @@ function OrderForm({ obj }) {
         />
       </FloatingLabel>
 
+      <h3 className="text-white mb-3">Order Items:</h3>
+      <table className="table">
+        <thead>
+          <tr>
+            <th>Item Name</th>
+            <th>Quantity</th>
+          </tr>
+        </thead>
+        <tbody>
+          {menuItems.map((menuItem, index) => (
+            <tr key={menuItem.id}>
+              <td>
+                <Form.Label htmlFor={`quantityInput-${index}`}>{menuItem.item_name}</Form.Label>
+              </td>
+              <td>
+                <FloatingLabel controlId={`quantityInput-${index}`} label={`Quantity for ${menuItem.item_name}`}>
+                  <Form.Control
+                    type="number"
+                    min="0"
+                    name="quantity"
+                    value={formInput.items[index]?.quantity || 0}
+                    onChange={(e) => handleChange(e, index)}
+                    required
+                  />
+                </FloatingLabel>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
       {/* SUBMIT BUTTON  */}
       <Button type="submit">{obj.id ? 'Update' : 'Create'} Order</Button>
     </Form>
@@ -156,9 +257,10 @@ OrderForm.propTypes = {
     order_type: PropTypes.string,
     payment_type: PropTypes.string,
     date: PropTypes.string,
-    tip: PropTypes.number,
-    order_total: PropTypes.number,
-    id: PropTypes.string,
+    tip: PropTypes.string,
+    order_total: PropTypes.string,
+    items: PropTypes.arrayOf(PropTypes.number),
+    id: PropTypes.number,
   }),
 };
 
